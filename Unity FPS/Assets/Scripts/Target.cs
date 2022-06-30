@@ -6,27 +6,39 @@ public class Target : MonoBehaviour
 {
   public bool IsVisible = false;
 
-  [SerializeField]
   private Transform _targetTransform;
+
+  private AudioSource _hitAudio;
 
   private Renderer _renderer;
 
 
+  private void Start()
+  {
+    SetVisible(IsVisible);
+  }
   private void OnValidate()
   {
     _targetTransform = GetComponent<Transform>();
     _renderer = GetComponent<Renderer>();
+    _hitAudio = GetComponent<AudioSource>();
   }
   public void Hit()
   {
-    Debug.Log("Target Hit!");
+    if (!IsVisible)
+    {
+      return;
+    }
+    else
+    {
+      SetVisible(false);
+      _hitAudio.Play();
+    }
   }
   public void SetVisible(bool status)
   {
     _renderer.enabled = status;
+    IsVisible = status;
   }
-  private void Update()
-  {
-    SetVisible(IsVisible);
-  }
+
 }
