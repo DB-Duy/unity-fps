@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class GridshotTargetManager : MonoBehaviour
+public class GridshotTargetManager : TargetManager
 {
   [SerializeField]
   private int _targetCount = 3;
   [SerializeField]
   private int _randomSeed = 0;
 
-  //   [SerializeField]
-  //   private GameObject _targetPrefab;
+  private bool _disabled = true;
 
   private Target[] _targets;
 
   private Target _nextTarget;
 
-  private void Start()
+  override public void Initialize()
   {
+    _disabled = false;
     Random.InitState(_randomSeed);
     _targets = FindObjectsOfType<Target>();
 
@@ -31,10 +31,9 @@ public class GridshotTargetManager : MonoBehaviour
   {
     Target[] targets = GetRandomTargets(_targetCount);
 
-
     for (int i = 0; i < targets.Length; i++)
     {
-      targets[i].SetVisible(true);
+      targets[i].SetActive(true);
     }
 
   }
@@ -67,29 +66,40 @@ public class GridshotTargetManager : MonoBehaviour
     return _targets[Random.Range(0, _targets.Length)];
   }
 
-
   private void Update()
   {
+    if (_disabled)
+    {
+      return;
+    }
+
     if (VisibleTargetsCount() < _targetCount)
     {
-      _nextTarget.SetVisible(true);
+      _nextTarget.SetActive(true);
     }
-    while (_nextTarget.IsVisible)
+    while (_nextTarget.IsActive)
     {
       _nextTarget = GetRandomTarget();
     }
   }
-
   private int VisibleTargetsCount()
   {
     int visibleCount = 0;
     for (int i = 0; i < _targets.Length; i++)
     {
-      if (_targets[i].IsVisible)
+      if (_targets[i].IsActive)
       {
         visibleCount++;
       }
     }
     return visibleCount;
+  }
+  override public void EndRound()
+  {
+    _disabled = true;
+    for (int i = 0; i < _targets.Length; i++)
+    {
+      _targets[i].SetActive(false);
+    }
   }
 }

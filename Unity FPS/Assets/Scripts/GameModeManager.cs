@@ -8,61 +8,93 @@ using UnityEngine.UI;
 public class GameModeManager : MonoBehaviour
 {
   [SerializeField]
-  private float _roundTimeInSeconds = 30;
-  public int _roundScore
+  private TargetManager _targetManager;
+  [SerializeField]
+  public float _roundTimeInSeconds = 30;
+
+  [HideInInspector]
+  public int RoundScore
   {
     private set; get;
   } = 0;
+  [HideInInspector]
+  public int ShotsFired = 0;
 
-  public bool _isPlaying = true;
+  [HideInInspector]
+  public bool IsPlaying = false;
+  [HideInInspector]
+  public float StartTime;
+  [HideInInspector]
+  public float TimeLeft;
 
-  private float _startTime;
-
-  [SerializeField]
-  private GameObject _roundCompletePanel;
 
   [SerializeField]
   private TMP_Text _scoreText;
   [SerializeField]
   private TMP_Text _timeText;
 
-  private void Start()
+  public void StartNewRound()
   {
-    _startTime = Time.time;
+    _targetManager.Initialize();
+    RoundScore = 0;
+    ShotsFired = 0;
+    StartTime = Time.time;
+    IsPlaying = true;
   }
+
   private void Update()
   {
-    if (!_isPlaying)
-    {
-      return;
-    }
-    UpdateScore();
-    UpdateTime();
-  }
-  private void UpdateScore()
-  {
-    _scoreText.text = $"Score: {_roundScore}";
-  }
-  private void UpdateTime()
-  {
-    int TimeLeft = Mathf.CeilToInt(_roundTimeInSeconds - (Time.time - _startTime));
-    _timeText.text = $"Time: {(TimeLeft)}";
-
+    UpdateTimeLeft();
     if (TimeLeft <= 0)
     {
-      _isPlaying = false;
-      DisplayRoundComplete();
+      EndRound();
     }
   }
 
-  private void DisplayRoundComplete()
+  private void UpdateTimeLeft()
   {
-    _roundCompletePanel.SetActive(true);
-    _roundCompletePanel.GetComponentInChildren<TMP_Text>().text = $"Your final score: {_roundScore}";
+    if (!IsPlaying)
+    {
+      TimeLeft = _roundTimeInSeconds;
+    }
+    else
+    {
+      TimeLeft = Mathf.CeilToInt(_roundTimeInSeconds - (Time.time - StartTime));
+    }
+  }
+
+  public float GetAccuracy()
+  {
+    float accuracy = 0f;
+    if (ShotsFired == 0)
+    {
+      accuracy = 0f;
+    }
+    else
+    {
+      accuracy = ((float)RoundScore / (float)ShotsFired) * 100;
+    }
+    return accuracy;
   }
 
   public void IncrementScore()
   {
-    _roundScore++;
+    if (IsPlaying)
+    {
+      RoundScore++;
+    }
   }
+  public void IncrementShotsFired()
+  {
+    if (IsPlaying)
+    {
+      ShotsFired++;
+    }
+  }
+  public void EndRound()
+  {
+    IsPlaying = false;
+    _targetManager.EndRound();
+  }
+
 }

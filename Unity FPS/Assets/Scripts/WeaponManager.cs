@@ -56,8 +56,11 @@ public class WeaponManager : MonoBehaviour
     if (Physics.Raycast(_camera.position, _camera.transform.forward, out RaycastHit hitInfo, _range))
     {
       Target target = hitInfo.transform.GetComponent<Target>();
-      OnTargetHit?.Invoke();
-      target?.Hit();
+      if (target != null)
+      {
+        target.Hit();
+        OnTargetHit?.Invoke();
+      }
     }
   }
 }

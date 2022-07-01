@@ -4,41 +4,44 @@ using UnityEngine;
 
 public class Target : MonoBehaviour
 {
-  public bool IsVisible = false;
+  public bool IsActive = false;
 
   private Transform _targetTransform;
 
   private AudioSource _hitAudio;
 
   private Renderer _renderer;
+  private Collider _collider;
 
 
   private void Start()
   {
-    SetVisible(IsVisible);
+    SetActive(IsActive);
   }
   private void OnValidate()
   {
     _targetTransform = GetComponent<Transform>();
     _renderer = GetComponent<Renderer>();
     _hitAudio = GetComponent<AudioSource>();
+    _collider = GetComponent<Collider>();
   }
   public void Hit()
   {
-    if (!IsVisible)
+    if (!IsActive)
     {
       return;
     }
     else
     {
-      SetVisible(false);
+      SetActive(false);
       _hitAudio.Play();
     }
   }
-  public void SetVisible(bool status)
+  public void SetActive(bool status)
   {
     _renderer.enabled = status;
-    IsVisible = status;
+    _collider.enabled = status;
+    IsActive = status;
   }
 
 }
